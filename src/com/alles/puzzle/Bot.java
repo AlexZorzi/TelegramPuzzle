@@ -55,6 +55,7 @@ public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
             } catch (MalformedURLException e) {
                 replyToChat(update, "url is not valid");
                 e.printStackTrace();
+                return;
             }
             int pieces = 100;
             try {
@@ -63,14 +64,19 @@ public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
                 }
             }catch (Exception e){
                 replyToChat(update, "Invalid value for puzzle pieces");
+                return;
             }
-
+            if (pieces < 6 || pieces > 1000) {
+                replyToChat(update, "The initial number of pieces must be a numeric value from 6 to 1000.");
+                return;
+            }
             String result = null;
             try {
                 result = this.post(url, String.valueOf(pieces));
             } catch (Exception e) {
                 replyToChat(update, "post request error! dont bully me D:");
                 e.printStackTrace();
+                return;
             }
             result = result.substring(result.indexOf("id=\"short-link\" class=\"result-url\" style=\"margin-top: 10px; margin-bottom: 15px\" type=\"text\" readonly=\"readonly\" value=\"") + 1);
                 result = result.substring(0, result.indexOf("\" />")).split("value=\"")[1];
