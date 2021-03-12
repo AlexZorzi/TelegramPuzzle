@@ -1,6 +1,7 @@
 # TelegramPuzzle
 this is an unofficial project, not related to jigsawexplorer.com
 
+you can try the bot at [@PuzzlePuzzlebot](https://t.me/PuzzlePuzzleBot) on Telegram
 # Usage
   - Start Bot
   ``` 
