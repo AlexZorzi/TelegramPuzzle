@@ -27,6 +27,7 @@ public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
     String token;
     String PathChromeDrive;
     public Bot(String username, String token, String PathChromeDrive){
+        System.out.println("username: "+username+" Token: "+token+" Path: "+PathChromeDrive);
         this.username = username;
         this.token = token;
         this.PathChromeDrive = PathChromeDrive;

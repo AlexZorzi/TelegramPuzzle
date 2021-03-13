@@ -6,13 +6,18 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println(args.toString());
-        try {
-            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(new Bot(args[0],args[1],args[2]));
-            //telegramBotsApi.registerBot(new Bot("botusername","bottoken","/path/to/chrome/driver"));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        if(args.length != 3){
+            System.out.println("Missing Arguments! (botUsername, botToken, /path/to/chrome/driver");
+            return;
+        }else {
+            try {
+                TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+                telegramBotsApi.registerBot(new Bot(args[0],args[1],args[2]));
+                //telegramBotsApi.registerBot(new Bot("botusername","bottoken","/path/to/chrome/driver"));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 }
