@@ -49,11 +49,11 @@ public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
     public void onUpdateReceived(Update update) {
         System.out.println(update.toString());
         String[] args = update.getMessage().getText().split(" ");
-        if (args.length < 2) {
-            replyToChat(update, "usage: /puzzle <url> (<pieces>)");
-            return;
-        }
         if (update.getMessage().isCommand() && args[0].equals("/puzzle")) {
+            if (args.length < 2) {
+                replyToChat(update, "usage: /puzzle <url> (<pieces>)");
+                return;
+            }
             URL url = null;
             try {
                 url = new URL(args[1]);
