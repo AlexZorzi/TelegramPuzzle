@@ -5,7 +5,7 @@ you can try the bot at [@PuzzlePuzzlebot](https://t.me/PuzzlePuzzleBot) on Teleg
 # Usage
   - Start Bot
   ``` 
-  ~$ java -jar TelegramPuzzle.jar botusername botToken /path/to/chromedriver
+  ~$ java -jar TelegramPuzzle.jar botusername botToken
   ```
   - Telegram
 
@@ -16,9 +16,10 @@ you can try the bot at [@PuzzlePuzzlebot](https://t.me/PuzzlePuzzleBot) on Teleg
   ![Image](https://i.imgur.com/ePIR16r.png)
 
 
-# Maven Dependencies
+# Maven Dependencies (SDK 11)
 ```
 - org.telegram:telegrambots:5.1.0
-- org.seleniumhq.selenium:selenium-java:4.0.0-beta-1
+- org.java-websocket:Java-WebSocket:1.5.1
+- com.google.code.gson:gson:2.8.6
 - com.squareup.okhttp3:okhttp:4.9.0
 ```
