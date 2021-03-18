@@ -4,15 +4,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
 
-import javax.script.*;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Puzzle {
 
@@ -21,14 +26,40 @@ public class Puzzle {
         return UUID[0]+"-"+UUID[4].substring(1);
     }
     public String cleanStr(Invocable inv, String s) throws ScriptException, NoSuchMethodException {
-        System.out.println(s);
         String res = (String) inv.invokeFunction("a", s);
         System.out.println(res);
         return res;
     }
 
+    String piecesArray;
+    String nop;
+    public void getPiecesArray(int pieces){
+        List<Integer> range = IntStream.rangeClosed(1, pieces)
+                .boxed().collect(Collectors.toList());
+        Random random = new Random();
+
+        Collections.shuffle(range);
+        this.nop = String.valueOf(range.size());
+        this.piecesArray = range.toString();
+    }
+
+    private int colrow;
+    public void findColRow(int pieces){
+        while (true){
+            double sqr = Math.sqrt(pieces);
+            if (sqr % 1 == 0){
+                this.colrow = (int) sqr;
+                return;
+            }
+            ++pieces;
+        }
+
+    }
     // TODO: Separate websockets and clients
-    public String web(String image) throws Exception {
+    public String web(String image, int pieces) throws Exception {
+        findColRow(pieces);
+        getPiecesArray(this.colrow*this.colrow);
+
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("JavaScript");
         engine.eval("\n" +
@@ -46,7 +77,8 @@ public class Puzzle {
                 "    return o\n" +
                 "}");
         Invocable inv = (Invocable) engine;
-        // first WebSocket
+
+        // WebSocket 1
         String id = getID();
         websocket client = new websocket("wss://ns.exitgames.com:19093/a0a94d7b-d90a-4161-ab65-91e8e3752c8c?libversion=4.1.0.0");
         client.connect();
@@ -58,7 +90,8 @@ public class Puzzle {
         String key2 = root.getAsJsonObject().getAsJsonArray("vals").get(5).toString().replace("\"","");
         System.out.println(link2+" "+key2);
         client.closeBlocking();
-        // second websocket
+
+        // Websocket 2
         websocket client2 = new websocket(link2+"/a0a94d7b-d90a-4161-ab65-91e8e3752c8c?libversion=4.1.0.0");
         client2.connect();
         client2.getlastMessage();
@@ -68,21 +101,21 @@ public class Puzzle {
         System.out.println(message2);
         client2.send(cleanStr(inv,"{\"req\": 229, \"vals\": []}"));
         System.out.println(client2.getlastMessage());
-        client2.send(cleanStr(inv,"{\"req\":227,\"vals\":[255,\""+id+"\",248,{\"254\":false,\"255\":20,\"pid\":null,\"nop\":112,\"rows\":8,\"cols\":14,\"lay\":[36,17,8,91,23,40,29,106,67,1,39,83,65,60,34,37,11,80,84,24,109,62,21,74,108,49,56,26,44,53,105,50,19,77,100,16,104,32,87,31,20,7,57,30,98,76,93,66,75,69,101,10,79,86,5,81,3,41,111,64,96,85,4,2,25,47,59,55,42,9,72,54,15,107,97,52,92,27,82,73,78,14,35,33,88,58,94,45,99,112,46,61,71,38,95,110,103,70,48,13,51,63,18,28,90,6,89,102,43,22,68,12],\"tabr\":26,\"tabb\":20,\"shp\":4,\"rot\":false,\"ang\":null,\"edo\":false,\"elpsd\":0,\"strt\":"+ Instant.now().getEpochSecond()+",\"last\":"+Instant.now().getEpochSecond()+",\"sesn\":0,\"dev\":true,\"indie\":false,\"url\":\""+image+"\"},241,true,250,true,236,0,235,1,232,true]}"));
+        client2.send(cleanStr(inv,"{\"req\":227,\"vals\":[255,\""+id+"\",248,{\"254\":false,\"255\":20,\"pid\":null,\"nop\":"+this.nop+",\"rows\":"+this.colrow+",\"cols\":"+this.colrow+",\"lay\":"+piecesArray+",\"tabr\":4,\"tabb\":4,\"shp\":4,\"rot\":false,\"ang\":null,\"edo\":false,\"elpsd\":0,\"strt\":"+ Instant.now().getEpochSecond()+",\"last\":"+Instant.now().getEpochSecond()+",\"sesn\":0,\"dev\":true,\"indie\":false,\"url\":\""+image+"\"},241,true,250,true,236,0,235,1,232,true]}"));
         String message3 = client2.getlastMessage().split("~j~")[1];
         System.out.println(message3);
         JsonElement root3 = JsonParser.parseString(message);
-        String link3 = root3.getAsJsonObject().getAsJsonArray("vals").get(1).toString().toString().replace("\"","");
+        String link3 = root3.getAsJsonObject().getAsJsonArray("vals").get(1).toString().replace("\"","");
         String key3 = root3.getAsJsonObject().getAsJsonArray("vals").get(5).toString().replace("\"","");
         System.out.println(link3+key3);
         client2.close();
-        // websocket 3
 
+        // websocket 3
         websocket client3 = new websocket("wss://gcash053.exitgames.com:19091"+"/a0a94d7b-d90a-4161-ab65-91e8e3752c8c?libversion=4.1.0.0");
         client3.connectBlocking();
         client3.send(cleanStr(inv,"{\"req\":230,\"vals\":[224,\"a0a94d7b-d90a-4161-ab65-91e8e3752c8c\",220,\"1.0\",221,\""+key3+"\",225,\""+id+"-PuzzleBot\"]}"));
         System.out.println(client3.getlastMessage());
-        client3.send(cleanStr(inv,"{\"req\":227,\"vals\":[255,\""+id+"\",248,{\"254\":false,\"255\":20,\"pid\":null,\"nop\":112,\"rows\":8,\"cols\":14,\"lay\":[36,17,8,91,23,40,29,106,67,1,39,83,65,60,34,37,11,80,84,24,109,62,21,74,108,49,56,26,44,53,105,50,19,77,100,16,104,32,87,31,20,7,57,30,98,76,93,66,75,69,101,10,79,86,5,81,3,41,111,64,96,85,4,2,25,47,59,55,42,9,72,54,15,107,97,52,92,27,82,73,78,14,35,33,88,58,94,45,99,112,46,61,71,38,95,110,103,70,48,13,51,63,18,28,90,6,89,102,43,22,68,12],\"tabr\":26,\"tabb\":20,\"shp\":4,\"rot\":false,\"ang\":null,\"edo\":false,\"elpsd\":0,\"strt\":"+Instant.now().getEpochSecond()+",\"last\":"+Instant.now().getEpochSecond()+",\"sesn\":0,\"dev\":true,\"indie\":false,\"url\":\""+image+"\"},241,true,250,true,236,0,235,1,232,true,249,{\"255\":\"PuzzleBot\"}]}"));
+        client3.send(cleanStr(inv,"{\"req\":227,\"vals\":[255,\""+id+"\",248,{\"254\":false,\"255\":20,\"pid\":null,\"nop\":"+this.nop+",\"rows\":"+this.colrow+",\"cols\":"+this.colrow+",\"lay\":"+piecesArray+",\"tabr\":26,\"tabb\":20,\"shp\":4,\"rot\":false,\"ang\":null,\"edo\":false,\"elpsd\":0,\"strt\":"+Instant.now().getEpochSecond()+",\"last\":"+Instant.now().getEpochSecond()+",\"sesn\":0,\"dev\":true,\"indie\":false,\"url\":\""+image+"\"},241,true,250,true,236,0,235,1,232,true,249,{\"255\":\"PuzzleBot\"}]}"));
         System.out.println(client3.getlastMessage());
         client3.send(cleanStr(inv,"{\"req\":252,\"vals\":[251,{\"sesn\":1},250,true]}"));
         client3.send(cleanStr(inv,"{\"req\":252,\"vals\":[251,{\"strtd\":false},250,true]}"));

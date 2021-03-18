@@ -4,10 +4,8 @@ import okhttp3.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.java_websocket.client.WebSocketClient;
 public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
 
     String username;
@@ -62,7 +60,7 @@ public class Bot extends org.telegram.telegrambots.bots.TelegramLongPollingBot{
                 return;
             }
             try {
-                String result = puzzle.web(url.toString());
+                String result = puzzle.web(url.toString(), pieces);
                 System.out.println(result);
                 String MpLink = result; // TODO
                 replyToChat(update, "Multiplayer Link: "+MpLink+" Pieces: "+String.valueOf(pieces));
