@@ -23,3 +23,7 @@ you can try the bot at [@PuzzlePuzzlebot](https://t.me/PuzzlePuzzleBot) on Teleg
 - com.google.code.gson:gson:2.8.6
 - com.squareup.okhttp3:okhttp:4.9.0
 ```
+
+# Todo
+- Puzzle by random image
+- Puzzle by uploaded image
